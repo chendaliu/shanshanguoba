@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:cxf="http://cxf.apache.org/core"
+    xmlns:jaxws="http://cxf.apache.org/jaxws"
+    xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+    xsi:schemaLocation="
+			http://www.springframework.org/schema/beans 
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/context 
+			http://www.springframework.org/schema/context/spring-context-3.0.xsd
+			http://www.springframework.org/schema/jee 
+			http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
+			http://www.springframework.org/schema/tx 
+			http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+			http://www.springframework.org/schema/aop 
+			http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+			http://cxf.apache.org/core
+			http://cxf.apache.org/schemas/core.xsd
+			http://cxf.apache.org/jaxws
+			http://cxf.apache.org/schemas/jaxws.xsd
+			http://cxf.apache.org/jaxrs
+			http://cxf.apache.org/schemas/jaxrs.xsd" default-autowire="byName">
+
+	<!-- 首页接口 -->
+	<bean id="rsFirstPageService" class="com.czl.shanshan.interfaces.service.impl.RsFirstPageService">
+	</bean>
+	<jaxrs:server id="rsFirstPageServiceServer" address="/shanshan/firstPage">
+		<jaxrs:serviceBeans>
+			<ref bean="rsFirstPageService"/>
+		</jaxrs:serviceBeans>
+		<jaxrs:extensionMappings>
+	        <entry key="json" value="application/json" />
+	    </jaxrs:extensionMappings>
+	    <jaxrs:languageMappings>
+			<entry key="en" value="en-gb" />
+		</jaxrs:languageMappings>
+		<jaxrs:outInterceptors>
+			<ref bean="outInterceptor" />
+		</jaxrs:outInterceptors>
+		<jaxrs:outFaultInterceptors>
+			<ref bean="faultInterceptor" />
+		</jaxrs:outFaultInterceptors>
+	</jaxrs:server>
+	
+	
+	<!-- 邮寄地址接口 -->
+	<bean id="rsAddressService" class="com.czl.shanshan.interfaces.service.impl.RsAddressService">
+	</bean>
+	<jaxrs:server id="rsAddressServiceServer" address="/shanshan/address">
+		<jaxrs:serviceBeans>
+			<ref bean="rsAddressService"/>
+		</jaxrs:serviceBeans>
+		<jaxrs:extensionMappings>
+	        <entry key="json" value="application/json" />
+	    </jaxrs:extensionMappings>
+	    <jaxrs:languageMappings>
+			<entry key="en" value="en-gb" />
+		</jaxrs:languageMappings>
+		<jaxrs:outInterceptors>
+			<ref bean="outInterceptor" />
+		</jaxrs:outInterceptors>
+		<jaxrs:outFaultInterceptors>
+			<ref bean="faultInterceptor" />
+		</jaxrs:outFaultInterceptors>
+	</jaxrs:server>
+	
+		<!-- 订单接口 -->
+	<bean id="rsOrderService" class="com.czl.shanshan.interfaces.service.impl.RsOrderService">
+	</bean>
+	<jaxrs:server id="rsOrderServiceServer" address="/shanshan/order">
+		<jaxrs:serviceBeans>
+			<ref bean="rsOrderService"/>
+		</jaxrs:serviceBeans>
+		<jaxrs:extensionMappings>
+	        <entry key="json" value="application/json" />
+	    </jaxrs:extensionMappings>
+	    <jaxrs:languageMappings>
+			<entry key="en" value="en-gb" />
+		</jaxrs:languageMappings>
+		<jaxrs:outInterceptors>
+			<ref bean="outInterceptor" />
+		</jaxrs:outInterceptors>
+		<jaxrs:outFaultInterceptors>
+			<ref bean="faultInterceptor" />
+		</jaxrs:outFaultInterceptors>
+	</jaxrs:server>
+	
+	<!-- 首页接口 -->
+	<bean id="rsLoginService" class="com.czl.shanshan.interfaces.service.impl.RsLoginService">
+	</bean>
+	<jaxrs:server id="rsLoginServiceServer" address="/shanshan/login">
+		<jaxrs:serviceBeans>
+			<ref bean="rsLoginService"/>
+		</jaxrs:serviceBeans>
+		<jaxrs:extensionMappings>
+	        <entry key="json" value="application/json" />
+	    </jaxrs:extensionMappings>
+	    <jaxrs:languageMappings>
+			<entry key="en" value="en-gb" />
+		</jaxrs:languageMappings>
+		<jaxrs:outInterceptors>
+			<ref bean="outInterceptor" />
+		</jaxrs:outInterceptors>
+		<jaxrs:outFaultInterceptors>
+			<ref bean="faultInterceptor" />
+		</jaxrs:outFaultInterceptors>
+	</jaxrs:server>
+	 
+	<!-- 消息处理器 -->
+	<bean id="outInterceptor"
+		class="com.czl.shanshan.interfaces.util.OutPhaseInterceptor" />
+	<!-- 异常处理器 -->
+	<bean id="faultInterceptor"
+		class="com.czl.shanshan.interfaces.util.OutFaultPhaseInterceptor" />
+</beans>
+
