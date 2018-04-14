@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.czl.shanshan.firstpage.dao.IFirstPageDao">
+	<!-- 查询横幅列表Map -->
+	<resultMap id="bannerEntityMap"
+		type="com.czl.shanshan.firstpage.entity.BannerEntity">
+		<result column="id" property="id" jdbcType="INTEGER" />
+		<result column="dateAdd" property="dateAdd" jdbcType="TIMESTAMP" />
+		<result column="businessId" property="businessId" jdbcType="INTEGER" />
+		<result column="linkUrl" property="linkUrl" jdbcType="VARCHAR" />
+		<result column="paixu" property="paixu" jdbcType="INTEGER" />
+		<result column="picUrl" property="picUrl" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="VARCHAR" />
+		<result column="statusStr" property="statusStr" jdbcType="VARCHAR" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="type" property="type" jdbcType="VARCHAR" />
+		<result column="userId" property="userId" jdbcType="INTEGER" />
+	</resultMap>
+
+	<!-- 查询商品map -->
+	<resultMap id="goodsEntityMap" type="com.czl.shanshan.firstpage.entity.GoodsEntity">
+		<result column="id" property="id" jdbcType="INTEGER" />
+		<result column="categoryId" property="categoryId" jdbcType="INTEGER" />
+		<result column="characteristic" property="characteristic"
+			jdbcType="VARCHAR" />
+		<result column="dateAdd" property="dateAdd" jdbcType="TIMESTAMP" />
+		<result column="logisticsId" property="logisticsId" jdbcType="INTEGER" />
+		<result column="minPrice" property="minPrice" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="numberFav" property="numberFav" jdbcType="INTEGER" />
+		<result column="numberGoodReputation" property="numberGoodReputation"
+			jdbcType="INTEGER" />
+		<result column="numberOrders" property="numberOrders" jdbcType="INTEGER" />
+		<result column="originalPrice" property="originalPrice"
+			jdbcType="INTEGER" />
+		<result column="paixu" property="paixu" jdbcType="INTEGER" />
+		<result column="pic" property="pic" jdbcType="VARCHAR" />
+		<result column="recommendStatus" property="recommendStatus"
+			jdbcType="INTEGER" />
+		<result column="recommendStatusStr" property="recommendStatusStr"
+			jdbcType="VARCHAR" />
+		<result column="shopId" property="shopId" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="statusStr" property="statusStr" jdbcType="VARCHAR" />
+		<result column="stores" property="stores" jdbcType="INTEGER" />
+		<result column="userId" property="userId" jdbcType="INTEGER" />
+		<result column="views" property="views" jdbcType="INTEGER" />
+	</resultMap>
+
+	<!-- 商品明细-图片map -->
+	<resultMap id="goodsDetailPictureEntityMap"
+		type="com.czl.shanshan.firstpage.entity.GoodsDetailPictureEntity">
+		<result column="goodsId" property="goodsId" jdbcType="INTEGER" />
+		<result column="pic" property="pic" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- 商品明细map -->
+	<resultMap id="goodsDetailEntityMap" type="com.czl.shanshan.firstpage.entity.GoodsDetailEntity">
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<association property="basicInfo" resultMap="goodsEntityMap" />
+		<collection property="pics" resultMap="goodsDetailPictureEntityMap"></collection>
+		<collection property="properties" column="goodsId" javaType="ArrayList" select="listGoodsProperties"
+			ofType="com.czl.shanshan.firstpage.entity.GoodsPropertyEntity"></collection>
+	</resultMap>
+	
+	<!-- 商品属性实体 -->
+	<resultMap id="goodsPropertyMap" type="com.czl.shanshan.firstpage.entity.GoodsPropertyEntity">
+		<result column="id" property="id" jdbcType="INTEGER" />
+		<result column="dateAdd" property="dateAdd" jdbcType="TIMESTAMP" />
+		<result column="paixu" property="paixu" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="goodsId" property="goodsId" jdbcType="INTEGER" />
+		<collection property="childsCurGoods" column="propertyId" select="listChildsCurGoods"
+			ofType="com.czl.shanshan.firstpage.entity.ChildsCurGoodsEntity"/>
+	</resultMap>
+	
+	<!-- 商品属性实体下面的列表类  -->
+	<resultMap id="childsCurGoodsMap" type="com.czl.shanshan.firstpage.entity.ChildsCurGoodsEntity">
+		<result column="id" property="id" jdbcType="INTEGER" />
+		<result column="dateAdd" property="dateAdd" jdbcType="TIMESTAMP" />
+		<result column="paixu" property="paixu" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="propertyId" property="propertyId" jdbcType="INTEGER" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="goodsId" property="goodsId" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<resultMap id="propertyChildDetailMap" type="com.czl.shanshan.firstpage.entity.PropertyChildDetail">
+		<result column="goodsId" property="goodsId" jdbcType="INTEGER" />
+		<result column="propertyChildIds" property="propertyChildIds" jdbcType="VARCHAR" />
+		<result column="stores" property="stores" jdbcType="INTEGER" />
+		<result column="price" property="price" jdbcType="REAL" />
+		<result column="originalPrice" property="originalPrice" jdbcType="REAL" />
+	</resultMap>
+	
+	<!-- 商品种类 map -->	
+	<resultMap id="categoryEntityMap" type="com.czl.shanshan.firstpage.entity.CategoryEntity">
+		<result column="id" property="id" jdbcType="INTEGER" />
+		<result column="isUse" property="isUse" jdbcType="INTEGER" />
+		<result column="key" property="key" jdbcType="VARCHAR" />
+		<result column="level" property="level" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="paixu" property="paixu" jdbcType="INTEGER" />
+		<result column="pid" property="pid" jdbcType="INTEGER" />
+		<result column="type" property="type" jdbcType="VARCHAR" />
+		<result column="userId" property="userId" jdbcType="INTEGER" />
+		<result column="dateAdd" property="dateAdd" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	
+	<!-- 查询横幅列表 -->
+	<select id="listBanners" resultMap="bannerEntityMap"
+		parameterType="com.czl.shanshan.firstpage.entity.BannerEntity">
+		SELECT t.id, t.dateAdd, t.businessId, t.linkUrl,
+		t.paixu, t.picUrl,
+		t.remark, t.status, t.statusStr, t.title, t.type, t.userId,t.dateAdd
+		FROM
+		t_shan_banner t
+		order by t.paixu
+	</select>
+
+	<!-- 查询商品列表 -->
+	<select id="listGoods" resultMap="goodsEntityMap" parameterType="java.util.Map">
+		select id,categoryId,characteristic,dateAdd,logisticsId,minPrice,
+		name,numberFav,numberGoodReputation,numberOrders,originalPrice,
+		paixu,pic,recommendStatus,recommendStatusStr,shopId,
+		status,statusStr,stores,userId,views
+		from t_shan_goods t 
+		<where>
+			<if test="categoryId != null">
+				t.categoryId=#{categoryId,jdbcType=INTEGER}
+			</if>			
+		</where>
+		order by t.paixu		
+	</select>
+
+	<!-- 查询商品详情 -->
+	<select id="getGoodsDetail" parameterType="java.lang.Long" resultMap="goodsDetailEntityMap">
+		SELECT pic.goodsId, pic.pic, gd.id, gd.categoryId, gd.characteristic,
+		gd.dateAdd, gd.logisticsId, gd.minPrice, gd.name, gd.numberFav,
+		gd.numberGoodReputation, gd.numberOrders, gd.originalPrice, gd.paixu, gd.pic,
+		gd.recommendStatus, gd.recommendStatusStr, gd.shopId, gd.status, gd.statusStr,
+		gd.stores, gd.userId, gd.views, dt.goodsId, dt.content
+		FROM
+		t_shan_goodsdetailpicture AS pic 
+		INNER JOIN t_shan_goods AS gd ON pic.goodsId = gd.id
+		INNER JOIN t_shan_goodsdetail AS dt ON dt.goodsId = gd.id
+		WHERE
+		gd.id = #{id,jdbcType=INTEGER}
+		order by gd.paixu
+	</select>
+	
+	<!-- 查询商品属性列表 -->
+	<select id="listGoodsProperties" parameterType="java.lang.Long" resultMap="goodsPropertyMap">
+		SELECT id as id, id as propertyId,dateAdd,name,paixu,goodsId from t_shan_goodsproperty t 
+		where t.goodsId=#{goodsId,jdbcType=INTEGER} order by t.paixu
+	</select>
+	
+	<!-- 查询属性细分类 -->
+	<select id="listChildsCurGoods" parameterType="java.lang.Long" resultMap="childsCurGoodsMap">
+		SELECT id,dateAdd,name,paixu,propertyId,remark,goodsId FROM t_shan_ChildsCurGoods t 
+		where t.propertyId=#{propertyId,jdbcType=INTEGER} order by t.paixu
+	</select>
+	
+	<!-- 查询属性细分的价钱 -->
+	<select id="getPrice" parameterType="java.util.Map" resultMap="propertyChildDetailMap">
+		SELECT goodsId,propertyChildIds,stores,price,originalPrice from t_shan_propertyChildDetail t 
+		where t.goodsId=#{goodsId,jdbcType=INTEGER} and t.propertyChildIds=#{propertyChildIds,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 查询商品种类 -->
+	<select id="listCategaries" resultMap="categoryEntityMap">
+		SELECT id,isUse,`key`,level,name,paixu,pid,type,userId,dateAdd from t_shan_category order by paixu
+	</select>
+</mapper>

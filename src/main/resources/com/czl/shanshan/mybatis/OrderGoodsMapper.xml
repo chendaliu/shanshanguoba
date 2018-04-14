@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.czl.shanshan.order.dao.IOrderGoodsDao">
+
+	 <resultMap id="orderGoodsEntityMap" type="com.czl.shanshan.order.entity.OrderGoodsEntity">
+ <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="OrderNum" jdbcType="VARCHAR" property="ordernum" />
+    <result column="goodsId" jdbcType="INTEGER" property="goodsid" />
+    <result column="number" jdbcType="INTEGER" property="number" />
+    <result column="propertyChildIds" jdbcType="VARCHAR" property="propertychildids" />
+    <result column="logisticsType" jdbcType="VARCHAR" property="logisticstype" />
+  </resultMap>
+			
+  <insert id="createOrderGoods" parameterType="com.czl.shanshan.order.entity.OrderGoodsEntity">
+     insert into t_shan_ordergoods (OrderNum, goodsId,number, propertyChildIds, logisticsType)
+    values (#{ordernum,jdbcType=VARCHAR}, #{goodsid,jdbcType=INTEGER},#{number,jdbcType=INTEGER}, #{propertychildids,jdbcType=VARCHAR}, #{logisticstype,jdbcType=VARCHAR}
+      )
+  </insert>
+  
+</mapper>

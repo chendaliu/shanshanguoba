@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.czl.shanshan.address.dao.IAddressDao">
+	<!-- 查询横幅列表Map -->
+	<resultMap id="addressEntityMap" type="com.czl.shanshan.address.entity.AddressesEntity">
+		    <result column="id" property="id" jdbcType="INTEGER" />
+		    <result column="linkMan" property="linkman" jdbcType="VARCHAR" />
+		    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		    <result column="provinceId" property="provinceid" jdbcType="INTEGER" />
+		    <result column="cityId" property="cityid" jdbcType="INTEGER" />
+		    <result column="districtId" property="districtid" jdbcType="INTEGER" />
+		    <result column="address" property="address" jdbcType="VARCHAR" />
+		    <result column="code" property="code" jdbcType="VARCHAR" />
+		    <result column="isDefault" property="isdefault" jdbcType="SMALLINT" />
+		    <result column="dateAdd" property="dateadd" jdbcType="TIMESTAMP" />
+		    <result column="WxUserID" property="wxuserid" jdbcType="VARCHAR" />
+			</resultMap>
+			
+	<select id="listAddress" resultMap="addressEntityMap" 
+		parameterType="java.lang.String">
+		SELECT t.id, t.dateAdd, t.linkMan, t.mobile, t.provinceId, t.cityId,
+			t.districtId, t.address, t.code, t.isDefault,t.WxUserID
+		FROM t_shan_address t where WxUserID=#{WxUserID,jdbcType=INTEGER}
+	</select>
+	
+	<select id="defaultAddress" resultMap="addressEntityMap" 
+		parameterType="java.lang.String">
+		SELECT t.id, t.dateAdd, t.linkMan, t.mobile, t.provinceId, t.cityId,
+			t.districtId, t.address, t.code, t.isDefault,t.WxUserID
+		FROM t_shan_address t where WxUserID=#{WxUserID,jdbcType=INTEGER} and isDefault=1
+	</select>
+	
+	  <insert id="addAddress" parameterType="com.czl.shanshan.address.entity.AddressesEntity" >
+    insert into t_shan_address (linkMan, mobile, 
+      provinceId, cityId, districtId, 
+      address, code, isDefault, 
+      dateAdd, WxUserID)
+    values ( #{linkman,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, 
+      #{provinceid,jdbcType=INTEGER}, #{cityid,jdbcType=INTEGER}, #{districtid,jdbcType=INTEGER}, 
+      #{address,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR}, #{isdefault,jdbcType=SMALLINT}, 
+      #{dateadd,jdbcType=TIMESTAMP}, #{wxuserid,jdbcType=VARCHAR})
+  </insert>
+  
+    <update id="updateAddress" parameterType="com.czl.shanshan.address.entity.AddressesEntity" >
+    update t_shan_address
+    <set >
+      <if test="linkman != null" >
+        linkMan = #{linkman,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceid != null" >
+        provinceId = #{provinceid,jdbcType=INTEGER},
+      </if>
+      <if test="cityid != null" >
+        cityId = #{cityid,jdbcType=INTEGER},
+      </if>
+      <if test="districtid != null" >
+        districtId = #{districtid,jdbcType=INTEGER},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null" >
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="isdefault != null" >
+        isDefault = #{isdefault,jdbcType=SMALLINT},
+      </if>
+      <if test="dateadd != null" >
+        dateAdd = #{dateadd,jdbcType=TIMESTAMP},
+      </if>
+      <if test="wxuserid != null" >
+        WxUserID = #{wxuserid,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateDefaultAddress" parameterType="com.czl.shanshan.address.entity.AddressesEntity" >
+  
+  
+   update t_shan_address set isDefault = 0 where WxUserID= #{wxuserid,jdbcType=VARCHAR};
+   update t_shan_address set  isDefault = 1  where id = #{id,jdbcType=INTEGER};
+  
+  </update>
+  
+  
+</mapper>
