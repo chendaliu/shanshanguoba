@@ -1,0 +1,11 @@
+@startuml
+autonumber
+SqlSessionFactoryBean->SqlSessionFactoryBean: afterPropertiesSet()
+SqlSessionFactoryBean->SqlSessionFactoryBean: buildSqlSessionFactory()
+note right
+读取mybaits配置文件创建Configuration
+end note
+SqlSessionFactoryBean->SqlSessionFactoryBuilder: sqlSessionFactoryBuilder.build(configuration)
+
+SqlSessionFactory<-SqlSessionFactoryBuilder
+@enduml

@@ -1,0 +1,119 @@
+@startuml
+autonumber
+title Unbounded Service - startService
+ContextImpl->ContextImpl: startService
+ContextImpl->ContextImpl:startServiceCommon
+ContextImpl->ActivityManagerService:startService
+ActivityManagerService->ActiveServices:startServiceLocked
+note right
+1. 调用retrieveServiceLocked
+2. 判断是否要将后台广播延迟，当前user的后台广播太多
+3. 调用startServiceInnerLocked
+end note
+ActiveServices->ActiveServices: retrieveServiceLocked
+note right
+检索带启动的Service
+1.得到当前的userId，及其对应的ServiceMap
+2.从ServiceMap的缓存中查找相应的ServiceRecord
+3.缓存中找不到，则PMS查找manifest，得到ResolveInfo
+  创建ServiceRecord并放入ServiceMap的缓存中
+  返回带有ServiceRecord的结构体ServiceLookupResult
+end note
+ActiveServices->ActiveServices:startServiceInnerLocked
+note right
+1. 调用bringUpServiceLocked，这是主要工作
+2. 根据addToStarting属性决定是否将Service放入后台队列
+后台队列与delay的服务有关，会根据情况调用rescheduleDelayedStartsLocked
+只有后台服务的队列少到一定程度，被delay的服务才可能重新start
+(重新调用startServiceInnerLocked)
+smap.mStartingBackground & smap.mDelayedStartList
+end note
+ActiveServices->ActiveServices:bringUpServiceLocked
+note right
+分三种情况进行处理
+1.进程和Service都启动了 2.进程启动了，但Service还没启动 3.进程也没启动
+1.调用sendServiceArgsLocked，向服务端发送参数
+2.调用realStartServiceLocked，真正启动服务
+3.首先启动Service所在进程，将ServiceRecord放到ActiveServices.mPendingServices中
+  当服务所在进程真正启动时，再启动服务
+end note
+ActiveServices->ActiveServices:realStartServiceLocked
+note right
+真正启动服务的操作 对于unbind Service
+1.修改ServiceRecord状态, bumpServiceExecutingLocked(r, execInFg, "create")
+  对服务状态进行记录，第二个参数代表是否是前台服务，最后一个参数代表reason
+2.调用create相关函数，创建Service scheduleCreateService
+  通过binder通信，直接调用客户端所在进程的ActivityThread，进行创建服务的工作
+  如果通信失败，binder died，将Service所在进程杀死appDiedLocked
+  并通过scheduleServiceRestartLocked安排重启服务:
+  scheduleServiceRestartLocked->重启服务时所有还没有被处理完的
+  startItem请求被放入pendinglist(pendingStarts)->计算nextRestartTime
+  ->定时触发performServiceRestartLocked->bringUpServiceLocked
+3.发送参数sendServiceArgsLocked
+4.针对delay service做一些缓存上的处理(当启动delay Service时会用到)
+end note
+ActiveServices->ActiveServices:bumpServiceExecutingLocked
+note right
+关键在ServiceRecord中的成员变量 executeNesting & executingStart
+executeNesting 代表请求数
+executingStart 记录上次的请求时间
+根据前后台服务，调用scheduleServiceTimeoutLocked，设置不同的timeout值
+发送SERVICE_TIMEOUT_MSG消息，一定时间内没被取消，则会触发ANR逻辑
+调用serviceTimeout，本次Service执行命令过长会触发ANR
+end note
+ActiveServices->ActivityThread:scheduleCreateService
+ActivityThread->ActivityThread:handleCreateService
+note right
+1.通过反射创建出一个实例service
+2.service.attach
+   service.attach(context, this...)
+  attach为创建的Service实例初始化一些参数，此时Service才算运行在Android环境中了
+  此处传递的this是ActivityThread，即service也是运行在所在进程的主线程中的
+  因此在service中执行耗时操作，最好也利用HandlerThread
+3.service.onCreate
+4.mServices.put(data.token, service)
+  mServices中存储了ActivityThread中运行的服务
+  key值为Service对应的IBinder，其实就是传过来的ServiceRecord
+  ServiceRecord extends Binder
+5.调用serviceDoneExecuting，通知AMS ServiceRecord对应Service实例创建完成
+end note
+ActivityThread->Service:attach
+ActivityThread->Service:onCreate
+ActivityThread->ActivityManagerService:serviceDoneExecuting
+ActivityManagerService->ActiveServices:serviceDoneExecuting
+ActivityManagerService->ActiveServices:sendServiceArgsLocked
+note right
+1.如果Service是前台服务，在O以上必须调用startForeground
+ (一般在onStartCommand中),设立超时机制SERVICE_FOREGROUND_TIMEOUT_MSG
+2.调用scheduleServiceArgs传递构建的参数
+3.如果传参时发生了意外，那么就不能正常调用serviceDoneExecutingLocked
+  进行收尾，再调用一次进行收尾(3个参数的方法)
+end note
+ActiveServices->ActivityThread:scheduleServiceArgs
+ActivityThread->ActivityThread:handleServiceArgs
+note right
+1.找到binder对应的Service实例，调用onStartCommand方法
+  处理intent携带的内容，有返回值
+2.等待本地QueuedWork完成,waitToFinish
+3.再调用serviceDoneExecuting通知AMS进行收尾工作(4个参数的方法)
+  其中type为SERVICE_DONE_EXECUTING_START,
+  res为onStartCommand的返回值，描述了在系统的杀死事件中，
+  系统应该如何继续这个服务的值，return值由服务的需求自己指定
+end note
+ActivityThread->Service:onStartCommand
+ActivityThread->ActivityManagerService:serviceDoneExecuting
+ActivityManagerService->ActiveServices:serviceDoneExecuting
+note right
+1.4参数serviceDoneExecuting针对onStartCommand的返回值进行参数stopIfKilled设置
+  START_STICKY：重启Service
+  START_NOT_STICKY：不再重启Service
+  START_REDELIVER_INTENT：重启Service并恢复上一个startItem，即上一个startService请求，适用于下载的断点续传
+  调用3参数serviceDoneExecuting
+2.3参数serviceDoneExecuting
+  一个Service的所有请求(StartItem)执行完成，进程中r.app.executingServices移除Service记录
+  一个进程中所有Service执行完成，移除Service超时的timeout
+  (看起只要按时return就不算超时，可以在onStartCommand逻辑中另开线程进行耗时操作，或者IntentService)
+  Service结束，将其从进程对应的记录r.app.services信息中移除
+总结：扫尾工作，更新ServiceRecord的相关信息
+end note
+@enduml
