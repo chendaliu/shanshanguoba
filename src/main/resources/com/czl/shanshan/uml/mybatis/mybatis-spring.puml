@@ -1,11 +1,43 @@
 @startuml
 autonumber
-SqlSessionFactoryBean->SqlSessionFactoryBean: afterPropertiesSet()
+==第一步：生成SqlSessionFactory并注入bean==
+SqlSessionFactoryBean->SqlSessionFactoryBean : afterPropertiesSet()
 SqlSessionFactoryBean->SqlSessionFactoryBean: buildSqlSessionFactory()
-note right
-读取mybaits配置文件创建Configuration
-end note
-SqlSessionFactoryBean->SqlSessionFactoryBuilder: sqlSessionFactoryBuilder.build(configuration)
 
-SqlSessionFactory<-SqlSessionFactoryBuilder
+note right
+读取mybaits配置文件创建Configuration configuration = xmlConfigBuilder.getConfiguration();
+configuration里包含了：
+Enviroment
+MappedStatement，这里有sql的id和sql的映射
+executor，封装了jdbc
+end note
+
+SqlSessionFactoryBean->SqlSessionFactoryBuilder: sqlSessionFactoryBuilder.build(configuration)
+SqlSessionFactoryBuilder-->SqlSessionFactoryBean: 生成SqlSessionFactory并返回
+
+==第二步：扫描Mapper注入BeanDefinition==
+SqlSessionFactoryBean -> MapperScannerConfigurer: 把SqlSessionFactory注入MapperScannerConfigurer
+MapperScannerConfigurer -> MapperScannerConfigurer: postProcessBeanDefinitionRegistry()
+note left
+spring启动的时候扫描Mapper并注入BeanDefinition
+end note
+
+==第三步：执行阶段==
+MapperFactoryBean->MapperFactoryBean:getObject()
+note right
+    spring在xml配置扫描mapper的类MapperScannerConfigurer实例化时，
+    把mapper接口封装到BeanDefinition(BeanDefinition.targetType=MapperFactoryBean)
+    spring在实例化bean(比如serviceBean)的时候解析到依赖的mapper接口，把mapper转换成
+    MapperFactoryBean，然后调用MapperFactoryBean.getObject()，
+    最后会经过MapperProxyFactory动态代理初始化
+end note
+MapperFactoryBean->SqlSession:getMapper()
+SqlSession->Configuration:configuration.getMapper()
+Configuration->MapperRegistry:getMapper()
+MapperRegistry->MapperProxyFactory:newInstance()
+MapperProxyFactory->MapperFactoryBean:返回动态代理类MapperProxy
+note right
+    MapperProxy里有sqlSession可以执行sql
+end note
+
 @enduml
